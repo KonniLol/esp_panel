@@ -28,90 +28,108 @@ RTC_DS3231 rtc; //initialize RTC
 
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
+
 void setup() {
 
-  Serial.begin(115200);
-  Serial.print("entered void setup");
+  if(WiFi.status() != WL_CONNECTED) {
+  
+    Serial.begin(115200);
+    Serial.print("entered void setup");
   
 
-  WiFi.begin(SSID, PSSWD);
-  Serial.println("Connecting");
-  while(WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.print("Connected to WiFi network. Your IP Address: ");
-  Serial.println(WiFi.localIP());
+    WiFi.begin(SSID, PSSWD);
+    Serial.println("Connecting");
+    while(WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+    }
+    Serial.println("");
+    Serial.print("Connected to WiFi network. Your IP Address: ");
+    Serial.println(WiFi.localIP());
 
-  tft.init();
-  tft.setRotation(1);
-  tft.fillScreen(TFT_BLACK);
+    tft.init();
+    tft.setRotation(1);
+    tft.fillScreen(TFT_BLACK);
+  
+    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
 
-  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+    tft.print("Setup loop");
 
-  tft.print("Setup loop");
-
-  Serial.print("Initialized Screen");
+    Serial.print("Initialized Screen");
 
   
-  if (! rtc.begin()) {
-    tft.setCursor(5, 5);
-    while (1) delay(10);
-  }
+    if (! rtc.begin()) {
+      tft.setCursor(5, 5);
+      while (1) delay(10);
+    }
   
-  if (rtc.lostPower()) {
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  }
+    if (rtc.lostPower()) {
+      rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    }
 
-  Serial.print("Initialed RTC");
+    Serial.print("Initialed RTC");
 
 //  delay(3000);
-  tft.fillScreen(TFT_BLACK);
+    tft.fillScreen(TFT_BLACK);
+  }
 }
 
 
-void loop() {
-
-  Serial.print("Entered loop \n");
+String getHTTP(String path) {
 
   String response;
-
-  //tft.fillScreen(TFT_BLACK);
-
+  
   if(WiFi.status() == WL_CONNECTED) {
-    //Serial.println("Entered first if");
     HTTPClient http;
 
-    String serverPath = serverName+"/";
-
-    http.begin(serverPath.c_str());
+    http.begin(path.c_str());
 
     int responseCode = http.GET();
 
     if(responseCode>0) {
-      //Serial.println("Entered if responseCode");
       Serial.print("HTTP response code: ");
       Serial.println(responseCode);
       response = http.getString();
       Serial.println(response);
     }
     
-    //Serial.println("Exited if responseCode");
-
     http.end();
+
+  }
+  int str_len = response.length() + 1;
+  char char_array[str_len];
+  response.toCharArray(char_array, str_len);
+  return response;
+}
+
+void loop() {
+
+  Serial.print("Entered loop \n");
+
+  String response;
+  String weather;
+
+
+  if(WiFi.status() == WL_CONNECTED) {
+    //Serial.println("Entered first if");
+
+    String serverPath = serverName+"/";
+
+
     DateTime now =  rtc.now();
     //Serial.println("init rtc complete");
   
+    //tft.fillScreen(TFT_BLACK);
 
     tft.setCursor(10, 64);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
     tft.printf("%d %d Temp: %.2f C", now.hour(), now.minute(), rtc.getTemperature());
     tft.print("Data from API: ");
-    tft.print(response);
+    tft.println(getHTTP(serverPath));
     //Serial.println("completed wite to screen");
     delay(900);
   }
 
 
 }
+
