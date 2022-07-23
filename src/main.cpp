@@ -64,6 +64,6 @@ void loop() {
   tft.setCursor(10, 64);
   tft.setTextColor(TFT_YELLOW, TFT_BLACK);
   tft.printf("%d %d Temp: %.2f C", now.hour(), now.minute(), rtc.getTemperature());
-  delay(900);
+  delay(800);
 
 }
