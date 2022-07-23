@@ -123,7 +123,7 @@ void loop() {
 
     tft.setCursor(10, 64);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-    tft.printf("%d %d Temp: %.2f C", now.hour(), now.minute(), rtc.getTemperature());
+    tft.printf("%02d %02d Temp: %.2f C\n", now.hour(), now.minute(), rtc.getTemperature());
     tft.print("Data from API: ");
     tft.println(getHTTP(serverPath));
     //Serial.println("completed wite to screen");
