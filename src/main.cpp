@@ -5,7 +5,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-#define SSID "testnetwork"
+#define SSID "testnetwork" 
 #define PSSWD "testpassword"
 
 String serverName = "http://api.konnilol.tk";
@@ -80,7 +80,7 @@ void loop() {
   //tft.fillScreen(TFT_BLACK);
 
   if(WiFi.status() == WL_CONNECTED) {
-    Serial.println("Entered first if");
+    //Serial.println("Entered first if");
     HTTPClient http;
 
     String serverPath = serverName+"/";
@@ -90,28 +90,26 @@ void loop() {
     int responseCode = http.GET();
 
     if(responseCode>0) {
-      Serial.println("Entered if responseCode");
+      //Serial.println("Entered if responseCode");
       Serial.print("HTTP response code: ");
       Serial.println(responseCode);
       response = http.getString();
       Serial.println(response);
-      tft.setCursor(10, 64);
-      tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-      tft.print("Data: ");
-      tft.print(response);
     }
     
-    Serial.println("Exited if responseCode");
+    //Serial.println("Exited if responseCode");
 
     http.end();
     DateTime now =  rtc.now();
-    Serial.println("init rtx complete");
+    //Serial.println("init rtc complete");
   
 
-    //tft.fillScreen(TFT_BLACK);
+    tft.setCursor(10, 64);
+    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
     tft.printf("%d %d Temp: %.2f C", now.hour(), now.minute(), rtc.getTemperature());
-    tft.printf("Data from API: %s", response);
-    Serial.println("completed wite to screen");
+    tft.print("Data from API: ");
+    tft.print(response);
+    //Serial.println("completed wite to screen");
     delay(900);
   }
 
