@@ -29,6 +29,46 @@ RTC_DS3231 rtc; //initialize RTC
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 
+String getHTTP(String path) {
+
+  String response;
+  
+  if(WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+
+    http.begin(path.c_str());
+
+    int responseCode = http.GET();
+
+    if(responseCode>0) {
+      Serial.print("HTTP response code: ");
+      Serial.println(responseCode);
+      response = http.getString();
+      Serial.println(response);
+    }
+    
+    http.end();
+
+  }
+  int str_len = response.length() + 1;
+  char char_array[str_len];
+  response.toCharArray(char_array, str_len);
+  return response;
+}
+
+void wifiConnect() {
+
+  WiFi.begin(SSID, PSSWD);
+  Serial.println("Connecting");
+  while(WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("Connected to WiFi network. Your IP Address: ");
+  Serial.println(WiFi.localIP());
+}
+
 void setup() {
 
   if(WiFi.status() != WL_CONNECTED) {
@@ -36,16 +76,7 @@ void setup() {
     Serial.begin(115200);
     Serial.print("entered void setup");
   
-
-    WiFi.begin(SSID, PSSWD);
-    Serial.println("Connecting");
-    while(WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
-    }
-    Serial.println("");
-    Serial.print("Connected to WiFi network. Your IP Address: ");
-    Serial.println(WiFi.localIP());
+    wifiConnect();
 
     tft.init();
     tft.setRotation(1);
@@ -75,33 +106,6 @@ void setup() {
 }
 
 
-String getHTTP(String path) {
-
-  String response;
-  
-  if(WiFi.status() == WL_CONNECTED) {
-    HTTPClient http;
-
-    http.begin(path.c_str());
-
-    int responseCode = http.GET();
-
-    if(responseCode>0) {
-      Serial.print("HTTP response code: ");
-      Serial.println(responseCode);
-      response = http.getString();
-      Serial.println(response);
-    }
-    
-    http.end();
-
-  }
-  int str_len = response.length() + 1;
-  char char_array[str_len];
-  response.toCharArray(char_array, str_len);
-  return response;
-}
-
 void loop() {
 
   Serial.print("Entered loop \n");
@@ -128,6 +132,9 @@ void loop() {
     tft.println(getHTTP(serverPath));
     //Serial.println("completed wite to screen");
     delay(900);
+  }
+  else if (WiFi.status() != WL_CONNECTED){
+    wifiConnect();
   }
 
 
